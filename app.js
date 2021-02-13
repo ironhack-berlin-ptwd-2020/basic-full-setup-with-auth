@@ -9,9 +9,10 @@ const mongoose = require('mongoose');
 const logger = require('morgan');
 const path = require('path');
 
+// 'mongodb://localhost/projects-and-tasks'
 
 mongoose
-  .connect('mongodb://localhost/projects-and-tasks', { useNewUrlParser: true })
+  .connect(process.env.MONGODB_URI, { useNewUrlParser: true })
   .then(x => {
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
   })
@@ -54,13 +55,17 @@ app.use(require('node-sass-middleware')({
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
-app.use(express.static(path.join(__dirname, 'public')));
+
+//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/client/build')));
+
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
 
 // default value for title local
 app.locals.title = 'Express - Generated with IronGenerator';
+
 
 
 
@@ -72,5 +77,11 @@ app.use('/api', require('./routes/projects'));
 
 app.use('/api', require('./routes/auth'));
 
+
+// testapp.herokuapp.com/
+app.use((req, res, next) => {
+  // If no routes match, send them the React HTML.
+  res.sendFile(__dirname + "/client/build/index.html");
+});
 
 module.exports = app;
